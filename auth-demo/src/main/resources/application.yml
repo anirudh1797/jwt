@@ -1,0 +1,93 @@
+# Authentication Framework Demo Application Configuration
+spring:
+  application:
+    name: auth-framework-demo
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/auth_framework?useSSL=true&serverTimezone=UTC}
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /demo
+
+# Authentication Framework Configuration
+auth:
+  jwt:
+    secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-at-least-256-bits-long-for-production-use}
+    access-token-expiration: ${JWT_ACCESS_EXPIRATION:900} # 15 minutes
+    refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:86400} # 24 hours
+    issuer: ${JWT_ISSUER:auth-framework-demo}
+    audience: ${JWT_AUDIENCE:auth-framework-users}
+    max-refresh-tokens-per-user: ${JWT_MAX_REFRESH_TOKENS:5}
+  
+  security:
+    password:
+      min-length: 8
+      max-length: 128
+      require-uppercase: true
+      require-lowercase: true
+      require-digit: true
+      require-special-char: true
+    
+    account:
+      max-failed-attempts: 5
+      lockout-duration-minutes: 30
+      session-timeout-minutes: 30
+
+# Logging Configuration
+logging:
+  level:
+    com.auth.framework: ${LOG_LEVEL:INFO}
+    org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:WARN}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${SQL_BIND_LOG_LEVEL:WARN}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/auth-framework-demo.log
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# Demo Application Specific Configuration
+demo:
+  features:
+    enable-registration: ${ENABLE_REGISTRATION:true}
+    enable-oauth2: ${ENABLE_OAUTH2:false}
+    enable-api-keys: ${ENABLE_API_KEYS:false}
+  security:
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+      allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+      allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+      allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
