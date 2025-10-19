@@ -1,34 +1,62 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.2'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
-    id 'war'
+    id 'org.springframework.boot' version '3.2.0' apply false
+    id 'io.spring.dependency-management' version '1.1.4' apply false
+    id 'java' apply false
+    id 'war' apply false
+    id 'jacoco' apply false
+    id 'org.sonarqube' version '4.4.1.3373'
 }
 
-group = 'com.spring.jwt'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
-
-repositories {
-    mavenCentral()
+allprojects {
+    group = 'com.auth.framework'
+    version = '1.0.0'
+    
+    repositories {
+        mavenCentral()
+    }
 }
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    runtimeOnly 'mysql:mysql-connector-java'
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'javax.validation:validation-api'
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
-    testImplementation 'org.springframework.security:spring-security-test'
-
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    
+    sourceCompatibility = '21'
+    
+    dependencies {
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.springframework.security:spring-security-test'
+        testImplementation 'org.testcontainers:junit-jupiter'
+        testImplementation 'org.testcontainers:mysql'
+        testImplementation 'org.mockito:mockito-core'
+        testImplementation 'org.mockito:mockito-junit-jupiter'
+    }
+    
+    test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+    
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
 }
 
-test {
-    useJUnitPlatform()
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "auth-framework"
+        property "sonar.projectName", "Authentication Framework"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.login", "admin"
+        property "sonar.password", "admin"
+    }
 }
 
 

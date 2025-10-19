@@ -1,1 +1,4 @@
-rootProject.name = 'jwt'
+rootProject.name = 'auth-framework'
+
+include 'auth-core'
+include 'auth-demo'
